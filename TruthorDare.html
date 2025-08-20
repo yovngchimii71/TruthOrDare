@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>Truth Or Dare+</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+  body {
+    margin:0; padding:0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ff758c, #ff7eb3, #ff9a76);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-x: hidden;
+  }
+  main {
+    width: 90%;
+    max-width: 400px;
+    margin-top: 30px;
+  }
+
+  /* TYLKO napis na ekranie startowym ma animację neonową */
+  #start-screen h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.7);
+    animation: neonGlow 2s ease-in-out infinite alternate;
+  }
+
+  /* Efekt neonowej poświaty */
+  @keyframes neonGlow {
+    from {
+      text-shadow:
+        0 0 4px #fff,
+        0 0 10px #ff4ec4,
+        0 0 18px #ff4ec4,
+        0 0 28px #ff4ec4,
+        0 0 40px #ff4ec4;
+      color: #fff;
+    }
+    to {
+      text-shadow:
+        0 0 8px #fff,
+        0 0 20px #ff7ee0,
+        0 0 34px #ff7ee0,
+        0 0 48px #ff7ee0,
+        0 0 70px #ff7ee0;
+      color: #ffe6f7;
+    }
+  }
+
+  /* Kategorie pionowo */
+  .categories {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .category {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 18px 24px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    user-select: none;
+  }
+  .category:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .category h2 {
+    margin: 0 0 6px 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(255,255,255,0.9);
+  }
+  .category p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ffe7eccc;
+  }
+
+  /* Strona wpisywania graczy */
+  #players-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #player-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  #add-player-btn, #start-game-btn, #back-to-menu-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.4);
+    transition: background 0.25s ease;
+    user-select: none;
+  }
+  #add-player-btn:hover, #start-game-btn:hover, #back-to-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.45);
+  }
+  #players-list {
+    width: 100%;
+    margin-top: 15px;
+    max-height: 180px;
+    overflow-y: auto;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 12px;
+  }
+  #players-list li {
+    padding: 6px 8px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+  }
+  #players-list li:last-child {
+    border-bottom: none;
+  }
+
+  /* Ekran gry */
+  #game-screen {
+    text-align: center;
+  }
+  #current-player {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  }
+  #question-text {
+    font-size: 1.4rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  .btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  button.choice-btn {
+    flex: 1 1 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    padding: 16px 10px;
+    border-radius: 14px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    user-select: none;
+    transition: background 0.25s ease;
+  }
+  button.choice-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .btn-row2 {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  button.answer-btn {
+    flex: 1 1 30%;
+    background: rgba(255,255,255,0.18);
+    border: none;
+    padding: 14px 10px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    user-select: none;
+    transition: background 0.25s ease;
+  }
+  button.answer-btn:hover {
+    background: rgba(255,255,255,0.35);
+  }
+  #scoreboard {
+    margin-top: 24px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+    color: #ffe3e8;
+    text-shadow: 0 0 5px rgba(255,255,255,0.7);
+  }
+
+  /* Animacja fajerwerków */
+  #fireworks-container {
+    position: fixed;
+    top:0; left:0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Scroll dla listy uczestników */
+  #players-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  #players-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+  }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    #start-screen h1 { font-size: 2.3rem; }
+    .category h2 { font-size: 1.3rem; }
+    button.choice-btn { font-size: 1.1rem; padding: 14px 6px;}
+    #question-text { min-height: 70px; font-size: 1.2rem;}
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- Ekran startowy -->
+  <section id="start-screen">
+    <h1>Truth Or Dare+</h1>
+    <div class="categories" id="categories-container">
+      <!-- Kategorie ładowane z JS -->
+    </div>
+  </section>
+
+  <!-- Ekran dodawania graczy -->
+  <section id="players-screen" style="display:none;">
+    <h1>Dodaj uczestników</h1>
+    <div id="players-container">
+      <input id="player-input" type="text" placeholder="Wpisz nick uczestnika" autocomplete="off" />
+      <button id="add-player-btn">Dodaj uczestnika</button>
+      <ul id="players-list"></ul>
+      <button id="start-game-btn" disabled>Rozpocznij grę</button>
+      <button id="back-to-menu-btn">Powrót do menu</button>
+    </div>
+  </section>
+
+  <!-- Ekran gry -->
+  <section id="game-screen" style="display:none;">
+    <h1>Gra</h1>
+    <div id="current-player">Ruch: <span id="player-name">---</span></div>
+    <div id="question-text" tabindex="0">Kliknij "Prawda" lub "Wyzwanie", by zacząć!</div>
+    <div class="btn-row">
+      <button class="choice-btn" id="truth-btn">Prawda</button>
+      <button class="choice-btn" id="dare-btn">Wyzwanie</button>
+    </div>
+    <div class="btn-row2" style="display:none;" id="answer-buttons">
+      <button class="answer-btn" id="answered-btn">Odpowiedział</button>
+      <button class="answer-btn" id="not-answered-btn">Nie odpowiedział</button>
+    </div>
+    <button id="back-to-menu-btn-game" style="margin-top:18px; background:rgba(255,255,255,0.25); border:none; border-radius:12px; padding:12px 20px; cursor:pointer; color:#fff; font-weight:700;">Powrót do menu</button>
+    <div id="scoreboard"></div>
+  </section>
+
+  <!-- Kontener na fajerwerki -->
+  <canvas id="fireworks-container"></canvas>
+
+</main>
+
+<audio id="click-sound" src="https://actions.google.com/sounds/v1/buttons/button_click.mp3" preload="auto"></audio>
+
+<script>
+(() => {
+  // Dane kategorii, po 50 pytań i 50 wyzwań oraz 50 kar (w przykładzie skrócone - rozbuduj wg potrzeb)
+  const categories = [
+    {
+      id: 'easy',
+      name: 'Luzny',
+      description: 'Łagodne pytania i wyzwania na rozgrzewkę.',
+      questions: [
+        'Jaki jest twój ulubiony kolor?',
+        'Czy kiedykolwiek skłamałeś/łaś na imprezie?',
+        'Jaka jest twoja ulubiona potrawa?',
+        'Czy potrafisz zaśpiewać swoją ulubioną piosenkę?',
+        'Opowiedz o swoim najśmieszniejszym wpadce.',
+        'Jaki film ostatnio oglądałeś/łaś?',
+        'Czy wolisz kawę czy herbatę?',
+        'Jaki jest twój największy talent?',
+        'Czy boisz się wysokości?',
+        'Co chciałbyś/chciałabyś zrobić w wakacje?',
+        // ... Dodaj jeszcze 40 pytań
+      ],
+      dares: [
+        'Zaśpiewaj piosenkę przez 30 sekund.',
+        'Zrób 10 przysiadów.',
+        'Naśladuj zwierzę przez minutę.',
+        'Wykonaj taniec disco.',
+        'Pokaż swój najlepszy uśmiech.',
+        'Opowiedz dowcip.',
+        'Zadzwoń do znajomego i powiedz "Cześć".',
+        'Namaluj coś na kartce w 1 minutę.',
+        'Zjedz łyżkę czegoś słodkiego.',
+        'Zrób minę jak z filmu horror.',
+        // ... Dodaj jeszcze 40 wyzwań
+      ]
+    },
+    {
+      id: 'medium',
+      name: 'Średni',
+      description: 'Średnio trudne pytania i wyzwania, idealne na imprezę.',
+      questions: [
+        'Jaki jest twój największy sekret?',
+        'Opowiedz o swoim najbardziej zawstydzającym momencie.',
+        'Kiedy ostatnio zrobiłeś/łaś coś spontanicznego?',
+        'Jaka jest twoja największa wada?',
+        'Czy kiedykolwiek złamałeś/łaś prawo?',
+        'Opowiedz o swojej pierwszej miłości.',
+        'Czy masz jakieś dziwne nawyki?',
+        'Co byś zrobił/ła z milionem złotych?',
+        'Jakie jest twoje największe marzenie?',
+        'Jaka była twoja najgorsza randka?',
+        // ... Dodaj jeszcze 40 pytań
+      ],
+      dares: [
+        'Zadzwoń do kogoś i zaśpiewaj "Sto lat".',
+        'Zrób 20 pompek.',
+        'Powiedz coś po angielsku z akcentem francuskim.',
+        'Tańcz przez minutę.',
+        'Zjedz coś pikantnego.',
+        'Napisz komuś SMS z wyznaniem.',
+        'Naśladuj gwiazdę rocka.',
+        'Powiedz coś zabawnego o sobie.',
+        'Zrób selfie z miną "smutnego kota".',
+        'Powiedz 5 komplementów innym uczestnikom.',
+        // ... Dodaj jeszcze 40 wyzwań
+      ]
+    },
+    {
+      id: 'couples',
+      name: 'Dla par',
+      description: 'Pytania i wyzwania dla zakochanych i par.',
+      questions: [
+        'Kiedy był twój pierwszy pocałunek?',
+        'Co najbardziej lubisz u swojego partnera/partnerki?',
+        'Jaki był najromantyczniejszy moment w twoim życiu?',
+        'Opowiedz o swojej najbardziej zabawnej randce.',
+        'Czy kiedykolwiek ukrywałeś/łaś coś przed partnerem?',
+        'Jakie jest twoje największe marzenie jako para?',
+        'Co najbardziej cenisz w związku?',
+        'Jaka jest twoja ulubiona wspólna aktywność?',
+        'Czy wierzysz w miłość od pierwszego wejrzenia?',
+        'Co chciałbyś/chciałabyś zmienić w swoim związku?',
+        // ... Dodaj jeszcze 40 pytań
+      ],
+      dares: [
+        'Pocałuj partnera/partnerkę na 5 sekund.',
+        'Zrób masaż ramion drugiej osobie.',
+        'Zaśpiewaj piosenkę dla partnera/partnerki.',
+        'Przytul się na minutę.',
+        'Napisz miłą wiadomość do ukochanej osoby.',
+        'Tańcz z partnerem/partnerką przez 1 minutę.',
+        'Powiedz, co najbardziej lubisz w drugiej osobie.',
+        'Przygotuj wspólnie deser w 5 minut.',
+        'Zrób zdjęcie razem z partnerem/partnerką.',
+        'Powiedz komplement o wyglądzie partnera/partnerki.',
+        // ... Dodaj jeszcze 40 wyzwań
+      ]
+    },
+    {
+      id: 'hard18',
+      name: 'Hard 18+',
+      description: 'Odważne pytania i wyzwania dla dorosłych.',
+      questions: [
+        'Kiedy miałaś/miałeś pierwszy raz?',
+        'Opowiedz o swoim najdzikszym doświadczeniu.',
+        'Jaka jest twoja największa fantazja?',
+        'Co najbardziej podnieca cię u partnera?',
+        'Czy kiedykolwiek złamałeś/łaś serce komuś?',
+        'Opowiedz o swojej najbardziej odważnej randce.',
+        'Jakie jest twoje ulubione miejsce na randkę?',
+        'Czy kiedykolwiek zrobiłeś/łaś coś nielegalnego w związku?',
+        'Jaka jest twoja najbardziej pamiętna przygoda erotyczna?',
+        'Co myślisz o trójkątach?',
+        // ... Dodaj jeszcze 40 pytań
+      ],
+      dares: [
+        'Zrób zmysłowy taniec przez 30 sekund.',
+        'Wyślij flirtującego SMS-a do kogoś z grupy.',
+        'Zamknij oczy i pozwól komuś cię pocałować.',
+        'Powiedz coś bardzo odważnego o sobie.',
+        'Zrób masaż drugiej osobie przez 1 minutę.',
+        'Naśladuj ulubioną scenę z filmu erotycznego.',
+        'Pocałuj kogoś na 5 sekund.',
+        'Zrób 10 pompków w bieliźnie.',
+        'Powiedz swoje największe marzenie erotyczne.',
+        'Wykonaj śmiałe zadanie wybrane przez grupę.',
+        // ... Dodaj jeszcze 40 wyzwań
+      ]
+    },
+  ];
+
+  // Kary - 50 różnych, bez powtórek
+  const penalties = [
+    'Wykonaj 20 pajacyków.',
+    'Zrób 10 przysiadów.',
+    'Zaśpiewaj piosenkę przez 30 sekund.',
+    'Wypij łyk zimnej wody.',
+    'Zadzwoń do znajomego i powiedz "Cześć".',
+    'Powiedz 3 komplementy innym uczestnikom.',
+    'Zatańcz przez minutę.',
+    'Powiedz zabawny dowcip.',
+    'Zrób śmieszną minę i utrzymaj przez 20 sekund.',
+    'Napisz SMS z zabawnym wyznaniem do kogoś.',
+    // ... Dodaj jeszcze 40 kar
+  ];
+
+  // --- LOGIKA APLIKACJI ---
+
+  // Elementy UI
+  const startScreen = document.getElementById('start-screen');
+  const categoriesContainer = document.getElementById('categories-container');
+  const playersScreen = document.getElementById('players-screen');
+  const playerInput = document.getElementById('player-input');
+  const addPlayerBtn = document.getElementById('add-player-btn');
+  const playersList = document.getElementById('players-list');
+  const startGameBtn = document.getElementById('start-game-btn');
+  const backToMenuBtn = document.getElementById('back-to-menu-btn');
+  const backToMenuBtnGame = document.getElementById('back-to-menu-btn-game');
+
+  const gameScreen = document.getElementById('game-screen');
+  const playerNameDisplay = document.getElementById('player-name');
+  const questionText = document.getElementById('question-text');
+  const truthBtn = document.getElementById('truth-btn');
+  const dareBtn = document.getElementById('dare-btn');
+  const answerButtons = document.getElementById('answer-buttons');
+  const answeredBtn = document.getElementById('answered-btn');
+  const notAnsweredBtn = document.getElementById('not-answered-btn');
+  const scoreboard = document.getElementById('scoreboard');
+  const fireworksCanvas = document.getElementById('fireworks-container');
+  const clickSound = document.getElementById('click-sound');
+
+  let chosenCategory = null;
+  let players = [];
+  let currentPlayerIndex = 0;
+  let currentQuestionType = null; // 'question' or 'dare'
+  let currentQuestionIndex = null;
+  let usedQuestions = new Set();
+  let usedDares = new Set();
+  let usedPenalties = new Set();
+  let scores = {};
+  let gameInProgress = false;
+
+  // Animacja fajerwerków - prosty efekt
+  const ctx = fireworksCanvas.getContext('2d');
+  fireworksCanvas.width = window.innerWidth;
+  fireworksCanvas.height = window.innerHeight;
+
+  class Firework {
+    constructor() {
+      this.x = Math.random() * fireworksCanvas.width;
+      this.y = Math.random() * fireworksCanvas.height;
+      this.radius = 0;
+      this.maxRadius = 30 + Math.random() * 20;
+      this.alpha = 1;
+      this.lineWidth = 2;
+      this.color = `hsl(${Math.random()*360}, 100%, 70%)`;
+    }
+    draw() {
+      if(this.alpha <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = this.lineWidth;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    update() {
+      this.radius += 1.5;
+      this.alpha -= 0.03;
+      if(this.alpha < 0) this.alpha = 0;
+    }
+  }
+
+  let fireworks = [];
+  function runFireworks(){
+    ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+    fireworks.forEach(fw => {
+      fw.update();
+      fw.draw();
+    });
+    fireworks = fireworks.filter(fw => fw.alpha > 0);
+    if(fireworks.length > 0){
+      requestAnimationFrame(runFireworks);
+    }
+  }
+  function createFireworks(){
+    for(let i=0; i<15; i++){
+      fireworks.push(new Firework());
+    }
+    runFireworks();
+  }
+
+  // Dźwięk kliknięcia
+  function playClickSound(){
+    try {
+      clickSound.currentTime = 0;
+      clickSound.play();
+    } catch (e) {
+      // ignoruj jeśli autoplay/block
+    }
+  }
+
+  // Render kategorii
+  function renderCategories(){
+    categoriesContainer.innerHTML = '';
+    categories.forEach(cat => {
+      const div = document.createElement('div');
+      div.classList.add('category');
+      div.dataset.id = cat.id;
+      div.innerHTML = `<h2>${cat.name}</h2><p>${cat.description}</p>`;
+      div.addEventListener('click', () => {
+        playClickSound();
+        chosenCategory = cat;
+        showPlayersScreen();
+      });
+      categoriesContainer.appendChild(div);
+    });
+  }
+
+  // Pokaż ekran dodawania graczy
+  function showPlayersScreen(){
+    startScreen.style.display = 'none';
+    gameScreen.style.display = 'none';
+    playersScreen.style.display = 'block';
+    players = [];
+    scores = {};
+    playersList.innerHTML = '';
+    playerInput.value = '';
+    startGameBtn.disabled = true;
+  }
+
+  // Dodaj gracza
+  addPlayerBtn.addEventListener('click', () => {
+    playClickSound();
+    const name = playerInput.value.trim();
+    if(name && !players.includes(name)){
+      players.push(name);
+      scores[name] = 0;
+      const li = document.createElement('li');
+      li.textContent = name;
+      playersList.appendChild(li);
+      playerInput.value = '';
+      startGameBtn.disabled = players.length < 2;
+    }
+  });
+
+  // Możliwość dodania gracza Enterem
+  playerInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      addPlayerBtn.click();
+    }
+  });
+
+  // Start gry
+  startGameBtn.addEventListener('click', () => {
+    playClickSound();
+    usedQuestions = new Set();
+    usedDares = new Set();
+    usedPenalties = new Set();
+    currentPlayerIndex = 0;
+    currentQuestionType = null;
+    currentQuestionIndex = null;
+    gameInProgress = true;
+    showGameScreen();
+    nextTurn();
+  });
+
+  // Powrót do menu z ekranu dodawania graczy
+  backToMenuBtn.addEventListener('click', () => {
+    playClickSound();
+    playersScreen.style.display = 'none';
+    startScreen.style.display = 'block';
+  });
+
+  // Powrót do menu z gry
+  backToMenuBtnGame.addEventListener('click', () => {
+    playClickSound();
+    if(confirm('Czy na pewno chcesz wrócić do menu? Tracisz postęp gry.')){
+      gameInProgress = false;
+      gameScreen.style.display = 'none';
+      startScreen.style.display = 'block';
+    }
+  });
+
+  // Pokaż ekran gry
+  function showGameScreen(){
+    playersScreen.style.display = 'none';
+    startScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
+    answerButtons.style.display = 'none';
+    scoreboard.textContent = '';
+  }
+
+  // Losuj unikalne pytanie/wydzwanie
+  function getUniqueItem(type){
+    const pool = type === 'question' ? chosenCategory.questions : chosenCategory.dares;
+    let index;
+    let tries = 0;
+    do {
+      index = Math.floor(Math.random()*pool.length);
+      tries++;
+      if(tries > 1000) break; // Bez nieskończonych pętli
+    } while((type === 'question' && usedQuestions.has(index)) || (type === 'dare' && usedDares.has(index)));
+    if(type === 'question') usedQuestions.add(index);
+    else usedDares.add(index);
+    return pool[index];
+  }
+
+  // Losuj unikalną karę
+  function getUniquePenalty(){
+    let index;
+    let tries = 0;
+    do {
+      index = Math.floor(Math.random()*penalties.length);
+      tries++;
+      if(tries > 1000) break;
+    } while(usedPenalties.has(index));
+    usedPenalties.add(index);
+    return penalties[index];
+  }
+
+  // Pokazuj następnego gracza
+  function nextTurn(){
+    if(!gameInProgress) return;
+    currentQuestionType = null;
+    currentQuestionIndex = null;
+    answerButtons.style.display = 'none';
+    questionText.textContent = 'Kliknij "Prawda" lub "Wyzwanie", by zacząć!';
+    currentPlayerIndex = (currentPlayerIndex) % players.length;
+    playerNameDisplay.textContent = players[currentPlayerIndex];
+  }
+
+  // Obsługa kliknięcia Prawda / Wyzwanie
+  function handleChoice(type){
+    if(!gameInProgress) return;
+    playClickSound();
+    currentQuestionType = (type === 'truth') ? 'question' : 'dare';
+    const text = getUniqueItem(currentQuestionType);
+    questionText.textContent = text;
+    answerButtons.style.display = 'flex';
+  }
+
+  // Obsługa odpowiedzi
+  function handleAnswer(answered){
+    if(!gameInProgress) return;
+    playClickSound();
+    answerButtons.style.display = 'none';
+    if(answered){
+      scores[players[currentPlayerIndex]] += 1;
+      createFireworks();
+    } else {
+      // Dodaj karę do pytania
+      const penalty = getUniquePenalty();
+      alert(`Kara: ${penalty}`);
+    }
+    currentPlayerIndex++;
+    if(currentPlayerIndex >= players.length){
+      currentPlayerIndex = 0;
+      // Sprawdź czy skończyły się pytania/wyzwania
+      if(usedQuestions.size + usedDares.size >= 100){ // przykładowo
+        alert('Koniec gry! Dzięki za grę!');
+        gameInProgress = false;
+        gameScreen.style.display = 'none';
+        startScreen.style.display = 'block';
+        return;
+      }
+    }
+    nextTurn();
+    updateScoreboard();
+  }
+
+  // Aktualizuj tablicę wyników
+  function updateScoreboard(){
+    scoreboard.innerHTML = '';
+    players.forEach(p => {
+      const div = document.createElement('div');
+      div.textContent = `${p}: ${scores[p]} pkt`;
+      scoreboard.appendChild(div);
+    });
+  }
+
+  // Podłącz eventy do przycisków prawda/wyzwanie
+  truthBtn.addEventListener('click', () => handleChoice('truth'));
+  dareBtn.addEventListener('click', () => handleChoice('dare'));
+  answeredBtn.addEventListener('click', () => handleAnswer(true));
+  notAnsweredBtn.addEventListener('click', () => handleAnswer(false));
+
+  // Inicjalizacja
+  renderCategories();
+  startScreen.style.display = 'block';
+  playersScreen.style.display = 'none';
+  gameScreen.style.display = 'none';
+
+  // Uaktualnia rozmiar canvas przy zmianie rozmiaru okna
+  window.addEventListener('resize', () => {
+    fireworksCanvas.width = window.innerWidth;
+    fireworksCanvas.height = window.innerHeight;
+  });
+
+})();
+</script>
+
+</body>
+</html>
